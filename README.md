@@ -1,0 +1,1 @@
+Test project showing how to set up Dagger in Android project and showcases how to do some non-trival test cases, like mocking HTTP client and handling testing of Activities which spins of background threads

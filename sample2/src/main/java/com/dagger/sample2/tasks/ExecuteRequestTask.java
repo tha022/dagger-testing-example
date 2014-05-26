@@ -1,7 +1,9 @@
 package com.dagger.sample2.tasks;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
+import com.dagger.sample2.job.IJobListener;
 import com.dagger.sample2.models.MyModel;
 import com.dagger.sample2.exceptions.MyHttpException;
 import com.dagger.sample2.http.MyHttpClient;
@@ -24,10 +26,13 @@ public class ExecuteRequestTask extends AsyncTask<Void, Void, MyModel> {
     // internal state
     private IOException ioException;
     private MyHttpException httpException;
+    private IJobListener jobListener;
 
-    public ExecuteRequestTask(MyHttpClient myHttpClient, CallbackResponseListener mListener) {
+
+    public ExecuteRequestTask(MyHttpClient myHttpClient, CallbackResponseListener mListener, IJobListener jobListener) {
         this.myHttpClient = myHttpClient;
         this.mListener = new WeakReference<CallbackResponseListener>(mListener);
+        this.jobListener = jobListener;
     }
 
     @Override
@@ -42,9 +47,12 @@ public class ExecuteRequestTask extends AsyncTask<Void, Void, MyModel> {
     protected MyModel doInBackground(Void... params) {
 
         HttpGet get = new HttpGet("http://ci.bipper.com/bsafe-server/speakers/corner");
-        try {
+       try {
 
-            return myHttpClient.executeRequest(get);
+            MyModel model = myHttpClient.executeRequest(get);
+            Log.d("ExecuteRequestTask", "should onPostExecute");
+
+           return model;
 
         } catch (IOException e) {
             this.ioException = e;
@@ -57,8 +65,10 @@ public class ExecuteRequestTask extends AsyncTask<Void, Void, MyModel> {
 
     @Override
     protected void onPostExecute(MyModel model) {
+        Log.d("ExecuteRequestTask", "welcome, model="+model);
         CallbackResponseListener mListener = this.mListener.get();
         if(mListener == null) {
+            Log.d("ExecuteRequestTask", "mListener="+mListener);
             // activity garbage collected
             return;
         }
@@ -75,5 +85,7 @@ public class ExecuteRequestTask extends AsyncTask<Void, Void, MyModel> {
                 mListener.handleHttpException(httpException);
             }
         }
+
+        jobListener.executionDone();
     }
 }

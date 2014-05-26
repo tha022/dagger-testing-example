@@ -2,7 +2,7 @@ package com.dagger.sample2.utils;
 
 import android.content.Context;
 
-import com.bipper.dagger.app.R;
+import com.dagger.sample2.R;
 
 /**
  * Created by Thomas on 5/24/14.

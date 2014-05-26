@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import com.bipper.dagger.app.R;
+import com.dagger.sample2.R;
 import com.dagger.sample2.MyApplication;
 import com.dagger.sample2.modules.ActivityModule;
 import com.dagger.sample2.utils.MyStringUtils;
@@ -39,7 +39,7 @@ public class SimpleMainActivity extends ActionBarActivity implements View.OnClic
     public void onClick(View v) {
         if(v.getId() == R.id.button) {
             String str = myStringUtils.helloWorld();
-            TextView msgView = (TextView) findViewById(R.id.textView);
+            TextView msgView = (TextView) findViewById(R.id.textView2);
             msgView.setText(str);
         }
     }

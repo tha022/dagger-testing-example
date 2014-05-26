@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import com.bipper.dagger.app.R;
+import com.dagger.sample2.R;
 import com.dagger.sample2.MyApplication;
 import com.dagger.sample2.models.MyModel;
 import com.dagger.sample2.exceptions.MyHttpException;
@@ -41,7 +41,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Call
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.button) {
-            ExecuteRequestTask task = new ExecuteRequestTask(myHttpClient, this);
+            ExecuteRequestTask task = new ExecuteRequestTask(myHttpClient, this, jobListener);
             task.execute();
         }
     }
@@ -50,19 +50,20 @@ public class MainActivity extends Activity implements View.OnClickListener, Call
     @Override
     public void setResponse(MyModel model) {
         setMessage(model.getContent());
-        jobListener.executionDone();
+        //jobListener.executionDone();
+
     }
 
     @Override
     public void handleIOException(IOException e) {
         setMessage(e.getMessage());
-        jobListener.executionDone();
+       // jobListener.executionDone();
     }
 
     @Override
     public void handleHttpException(MyHttpException e) {
         setMessage(String.format("Ooops, we got a %s exception", e.getStatusCode()));
-        jobListener.executionDone();
+        //jobListener.executionDone();
     }
 
     @Override
@@ -73,7 +74,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Call
 
 
     private void setMessage(String str) {
-        TextView msgView = (TextView) findViewById(R.id.textView);
+        TextView msgView = (TextView) findViewById(R.id.textView2);
         msgView.setText(str);
     }
 

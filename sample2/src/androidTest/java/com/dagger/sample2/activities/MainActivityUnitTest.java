@@ -2,11 +2,14 @@ package com.dagger.sample2.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Looper;
 import android.test.ActivityUnitTestCase;
+import android.test.UiThreadTest;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.bipper.dagger.app.R;
+import com.dagger.sample2.R;
 import com.dagger.sample2.MyApplication;
 import com.dagger.sample2.models.MyModel;
 import com.dagger.sample2.TestApplication;
@@ -31,7 +34,7 @@ import static org.mockito.Mockito.when;
  */
 public class MainActivityUnitTest extends ActivityUnitTestCase<MainActivity> {
 
-    @Inject
+   // @Inject
     CountDownLatch latch;
     @Inject
     MyHttpClient myHttpClient;
@@ -47,22 +50,32 @@ public class MainActivityUnitTest extends ActivityUnitTestCase<MainActivity> {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        System.setProperty("dexmaker.dexcache", "/data/data/com.bipper.dagger.app/cache");
+        System.setProperty("dexmaker.dexcache", "/data/data/com.dagger.sample2/cache");
+
+        latch = new CountDownLatch(1);
 
         // create test application context which we can use for create a Dagger Graph with our test module.
-        MyApplication application = new TestApplication(1);
+        MyApplication application = new TestApplication(latch);
         application.inject(this); // inject the dependencies we need to this class
         setApplication(application); // use our custom test application context
+
 
         this.intent = new Intent();
     }
 
     /**
      * Test 200 success, model returned
+     *
+     * http://stackoverflow.com/questions/9694282/activityunittestcase-and-activityrunonuithread
      */
-    public void testOnClick_200() throws InterruptedException, IOException, MyHttpException {
+   // @UiThreadTest
+    public void testOnClick_200() throws Throwable {
+
+        boolean isUiThread = Thread.currentThread() == Looper.getMainLooper().getThread();
+        Log.d ("ExecuteRequestTask", "Running on UI Thread? " + isUiThread);
 
         this.activity = startActivity(intent, null, null);
+
 
         // set up HTTP mock
         MyModel model = new MyModel(200, "Slava Ukraini");
@@ -70,17 +83,23 @@ public class MainActivityUnitTest extends ActivityUnitTestCase<MainActivity> {
 
 
         // the test
-        View view = activity.findViewById(R.id.button);
-        activity.onClick(view);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View view = activity.findViewById(R.id.button);
+                activity.onClick(view);
+            }
+        });
 
 
-        latch.await(50, TimeUnit.SECONDS); // await till the count down latch is zero before proceeding
+        Log.d("ExecuteRequestTask", "testOnClick_200, latch="+latch.toString());
+        latch.await(5, TimeUnit.SECONDS); // await till the count down latch is zero before proceeding
 
         // verify the mock was invoked
         verify(myHttpClient, times(1)).executeRequest(any(HttpUriRequest.class));
 
         // assert view got updated correctly
-        TextView msgView = (TextView) activity.findViewById(R.id.textView);
+        TextView msgView = (TextView) activity.findViewById(R.id.textView2);
         assertEquals(model.getContent(), msgView.getText());
         assertEquals(200, model.getStatusCode());
     }
@@ -88,7 +107,7 @@ public class MainActivityUnitTest extends ActivityUnitTestCase<MainActivity> {
     /**
      * Test a HTTP failure, 400 Bad Request
      */
-    public void testOnClick_400() throws InterruptedException, IOException, MyHttpException {
+    public void testOnClick_400() throws Throwable {
 
         this.activity = startActivity(intent, null, null);
 
@@ -98,17 +117,22 @@ public class MainActivityUnitTest extends ActivityUnitTestCase<MainActivity> {
 
 
         // the test
-        View view = activity.findViewById(R.id.button);
-        activity.onClick(view);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View view = activity.findViewById(R.id.button);
+                activity.onClick(view);
+            }
+        });
 
 
-        latch.await(50, TimeUnit.SECONDS); // await till the count down latch is zero before proceeding
+        latch.await(5, TimeUnit.SECONDS); // await till the count down latch is zero before proceeding
 
         // verify the mock was invoked
         verify(myHttpClient, times(1)).executeRequest(any(HttpUriRequest.class));
 
         // assert view got updated correctly
-        TextView msgView = (TextView) activity.findViewById(R.id.textView);
+        TextView msgView = (TextView) activity.findViewById(R.id.textView2);
         String expected = String.format("Ooops, we got a %s exception", myHttpException.getStatusCode());
         assertEquals(expected, msgView.getText());
     }
@@ -116,7 +140,7 @@ public class MainActivityUnitTest extends ActivityUnitTestCase<MainActivity> {
     /**
      * IOException, for example cause of Bad connection
      */
-    public void testOnClick_ioException() throws InterruptedException, IOException, MyHttpException {
+    public void testOnClick_ioException() throws Throwable {
 
         this.activity = startActivity(intent, null, null);
 
@@ -126,17 +150,22 @@ public class MainActivityUnitTest extends ActivityUnitTestCase<MainActivity> {
 
 
         // the test
-        View view = activity.findViewById(R.id.button);
-        activity.onClick(view);
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View view = activity.findViewById(R.id.button);
+                activity.onClick(view);
+            }
+        });
 
 
-        latch.await(50, TimeUnit.SECONDS); // await till the count down latch is zero before proceeding
+        latch.await(5, TimeUnit.SECONDS); // await till the count down latch is zero before proceeding
 
         // verify the mock was invoked
         verify(myHttpClient, times(1)).executeRequest(any(HttpUriRequest.class));
 
         // assert view got updated correctly
-        TextView msgView = (TextView) activity.findViewById(R.id.textView);
+        TextView msgView = (TextView) activity.findViewById(R.id.textView2);
         assertEquals(ioException.getMessage(), msgView.getText());
     }
 

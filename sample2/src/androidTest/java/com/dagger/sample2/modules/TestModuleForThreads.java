@@ -1,5 +1,7 @@
 package com.dagger.sample2.modules;
 
+import android.util.Log;
+
 import com.dagger.sample2.activities.MainActivityUnitTest;
 import com.dagger.sample2.http.MyHttpClient;
 import com.dagger.sample2.job.IJobListener;
@@ -26,6 +28,9 @@ public class TestModuleForThreads {
     final CountDownLatch latch;
     int latchCounter;
 
+    public TestModuleForThreads(CountDownLatch latch) {
+        this.latch = latch;
+    }
 
     public TestModuleForThreads(int latchCounter) {
         this.latchCounter = latchCounter;
@@ -38,11 +43,12 @@ public class TestModuleForThreads {
     }
 
     @Provides @Singleton
-    public IJobListener provideJobListener() {
-
+    public IJobListener provideJobListener(final CountDownLatch latch) {
+        Log.d("ExecuteRequestTask", "provideJobListener="+latch.toString());
         return new IJobListener() {
             @Override
             public void executionDone() {
+                Log.d("ExecuteRequestTask", "executionDone");
                 latch.countDown();
             }
         };
@@ -50,6 +56,7 @@ public class TestModuleForThreads {
 
     @Provides @Singleton
     public CountDownLatch provideCountDownLatch() {
+        Log.d("ExecuteRequestTask", "provideCountDownLatch="+latch.toString());
         return latch;
     }
 }

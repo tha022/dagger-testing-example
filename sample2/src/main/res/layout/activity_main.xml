@@ -5,14 +5,13 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.dagger.sample1.activities.SimpleMainActivity">
+    android:paddingBottom="@dimen/activity_vertical_margin">
 
     <TextView
         android:text="@string/hello_world"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView"
+        android:id="@+id/textView2"
         android:layout_alignParentTop="true"
         android:layout_alignRight="@+id/button"
         android:layout_alignEnd="@+id/button" />
@@ -23,7 +22,6 @@
         android:text="Click me Sample 2"
         android:id="@+id/button"
         android:layout_marginTop="180dp"
-        android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
